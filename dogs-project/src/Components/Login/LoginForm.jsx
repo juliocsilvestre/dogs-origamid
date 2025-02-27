@@ -1,48 +1,54 @@
-import React from "react";
-import { Link } from "react-router-dom";
-import Input from "../Forms/Input";
-import Button from "../Forms/Button";
+import React from 'react';
+import { Link } from 'react-router-dom';
+import Input from '../Forms/Input';
+import Button from '../Forms/Button';
+import useForm from '../../Hooks/useForm';
+import { UserContext } from '../../UserContext';
+import Error from '../Helper/Error';
+import styles from './LoginForm.module.css';
+import stylesBtn from '../Forms/Button.module.css';
+import Head from '../Helper/Head';
+
 const LoginForm = () => {
-    const [username, setUsername] = React.useState("");
-    const [password, setPassword] = React.useState("");
-    const handleSubmit = async (event) => {
-        event.preventDefault();
-        try {
-            const response = await fetch("https://dogsapi.origamid.dev/json/jwt-auth/v1/token", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify({ username, password }),
-            });
+  const username = useForm();
+  const password = useForm();
 
-            console.log("Response:", response);
+  const { userLogin, error, loading } = React.useContext(UserContext);
 
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
+  async function handleSubmit(event) {
+    event.preventDefault();
 
-            const data = await response.json();
-            console.log("Data:", data);
-        } catch (error) {
-            console.error("Fetch error:", error);
-        }
-    };
+    if (username.validate() && password.validate()) {
+      userLogin(username.value, password.value);
+    }
+  }
 
-    return (
-        <section>
-            <div>
-                <h1>Login</h1>
-                <form action="" onSubmit={handleSubmit}>
-                    <Input label="Usuário" type="text" name={username} />
-                    <Input label="Senha" type="password" name={password} />
-                    <Button>Entrar</Button>
-                </form>
-                <p>Ainda não possui conta? Cadastre-se no site.</p>
-                <Link to="create">Cadastro</Link>
-            </div>
-        </section>
-    );
+  return (
+    <section className="animeLeft">
+      <Head title="Login" />
+      <h1 className="title">Login</h1>
+      <form className={styles.form} onSubmit={handleSubmit}>
+        <Input label="Usuário" type="text" name="username" {...username} />
+        <Input label="Senha" type="password" name="password" {...password} />
+        {loading ? (
+          <Button disabled>Carregando...</Button>
+        ) : (
+          <Button>Entrar</Button>
+        )}
+        <Error error={error && 'Dados incorretos.'} />
+      </form>
+      <Link className={styles.perdeu} to="/login/perdeu">
+        Perdeu a Senha?
+      </Link>
+      <div className={styles.cadastro}>
+        <h2 className={styles.subtitle}>Cadastre-se</h2>
+        <p>Ainda não possui conta? Cadastre-se no site.</p>
+        <Link className={stylesBtn.button} to="/login/criar">
+          Cadastro
+        </Link>
+      </div>
+    </section>
+  );
 };
 
 export default LoginForm;
