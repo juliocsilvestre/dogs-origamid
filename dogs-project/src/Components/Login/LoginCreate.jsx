@@ -1,7 +1,5 @@
 import React from "react";
 
-const LoginCreate = () => {
-    return <div>Cadastros</div>;
-};
+const LoginCreate = () => <div>Rota Create acessada!</div>;
 
 export default LoginCreate;
